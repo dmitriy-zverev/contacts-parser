@@ -17,3 +17,6 @@ test:
 
 test-cov:
 	pytest tests --cov=. --cov-config=tests/.coveragerc --cov-report term
+
+test-run:
+	python3 src/contacts_parser/api/main.py $0
