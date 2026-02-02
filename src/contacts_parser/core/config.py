@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     pool_maxsize: int = Field(default=10, validation_alias="POOL_MAXSIZE")
     lru_maxsize: int = Field(default=1, validation_alias="LRU_MAXSIZE")
 
+    # Parser settings
+    parser_type: str = Field(default="html.parser", validation_alias="PARSER_TYPE")
+    max_pages_deep: int = Field(default=1000, validation_alias="MAX_PAGES_DEEP")
+
     @field_validator("http_timeout_seconds", "http_backoff_seconds")
     @classmethod
     def positive_floats(cls, v: float) -> float:
@@ -40,11 +44,11 @@ class Settings(BaseSettings):
             raise ValueError("Timeout/backoff must be > 0")
         return v
 
-    @field_validator("http_max_retries", "lru_maxsize")
+    @field_validator("http_max_retries", "lru_maxsize", "max_pages_deep")
     @classmethod
     def positive_ints(cls, v: int) -> int:
         if v < 0:
-            raise ValueError("Max retries/lru maxsize must be >= 0")
+            raise ValueError("Max retries/lru maxsize/max pages deep must be >= 0")
         return v
 
 

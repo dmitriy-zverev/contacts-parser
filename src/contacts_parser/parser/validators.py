@@ -3,7 +3,7 @@ from urllib.parse import urlparse, urlunparse
 from contacts_parser.parser.errors import PermanentParserError
 
 
-def validate_and_normalized_url(url: str) -> str:
+def validate_and_normalize_url(url: str) -> str:
     url = url.strip()
 
     p = urlparse(url)
@@ -17,7 +17,7 @@ def validate_and_normalized_url(url: str) -> str:
     normalized = urlunparse(
         (
             p.scheme,
-            p.netloc,
+            p.netloc.replace("www.", "", 1) if p.netloc.startswith("www.") else p.netloc,
             p.path or "/",
             p.params,
             p.query,
@@ -26,3 +26,20 @@ def validate_and_normalized_url(url: str) -> str:
     )
 
     return normalized
+
+
+def parse_base_url(url: str) -> str:
+    normilized_p = urlparse(validate_and_normalize_url(url))
+
+    base_url = urlunparse(
+        (
+            normilized_p.scheme,
+            normilized_p.netloc,
+            "/",
+            "",
+            "",
+            "",
+        )
+    )
+
+    return base_url
