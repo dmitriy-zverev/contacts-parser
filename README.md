@@ -1,6 +1,6 @@
 # Contacts Parser
 
-A production-ready contacts parser that crawls a site, extracts emails and Russian phone numbers, and returns structured results. It supports threaded crawling, configurable HTTP settings, and structured logging.
+A production-grade contacts parser that crawls a site, extracts emails and Russian phone numbers, and returns structured results. The project ships both a CLI and a FastAPI service for programmatic use.
 
 ## Features
 - Threaded crawler with bounded worker pool
@@ -10,6 +10,12 @@ A production-ready contacts parser that crawls a site, extracts emails and Russi
 - Structured results (`ParserResult`) with timing metadata
 - Logging instead of raw `print()` output
 
+## Architecture
+- **core**: configuration and settings
+- **infra**: HTTP sessions, request logic, retry/backoff handling
+- **parser**: crawler, URL normalization, extraction utilities, result model
+- **api**: FastAPI app exposing `/parse`
+
 ## Requirements
 - Python 3.11+
 
@@ -18,9 +24,43 @@ A production-ready contacts parser that crawls a site, extracts emails and Russi
 pip install -e .
 ```
 
-## Quick start
+## CLI usage
 ```bash
 python -m contacts_parser.main https://example.com
+```
+
+## API usage
+Start the API server:
+```bash
+uvicorn contacts_parser.api.main:app --host 127.0.0.1 --port 8000
+```
+
+Call the endpoint:
+```bash
+curl -X POST http://127.0.0.1:8000/parse \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'
+```
+
+Response:
+```json
+{
+  "url": "https://example.com",
+  "emails": ["info@example.com"],
+  "phones": ["+79991234567"]
+}
+```
+
+## Docker
+Build and run the API server:
+```bash
+make build
+make run-detached
+```
+
+Stop the container:
+```bash
+docker stop contacts-parser
 ```
 
 ## Result format
@@ -31,7 +71,7 @@ The parser returns a `ParserResult` object with:
 - `started_at`, `finished_at`, and `duration_seconds`
 
 ## Logging
-Logging is enabled via `LOG_LEVEL` and uses the standard library `logging` module. Example:
+Logging is enabled via `LOG_LEVEL` and uses the standard library `logging` module:
 ```bash
 LOG_LEVEL=DEBUG python -m contacts_parser.main https://example.com
 ```
@@ -78,4 +118,11 @@ python -m contacts_parser.main https://example.com
 MAX_PAGES_DEEP=100 \
 CRAWLER_MAX_WORKERS=4 \
 python -m contacts_parser.main https://example.com
+```
+
+### Local API request
+```bash
+curl -X POST http://127.0.0.1:8000/parse \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'
 ```
