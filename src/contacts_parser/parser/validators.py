@@ -9,10 +9,10 @@ def validate_and_normalize_url(url: str) -> str:
     p = urlparse(url)
 
     if p.scheme not in ("http", "https"):
-        return PermanentParserError("URL должен начинаться с http:// или https://")
+        raise PermanentParserError("URL должен начинаться с http:// или https://")
 
     if not p.netloc:
-        return PermanentParserError("URL должен быть абсолютным и содержать домен типа https://example.com")
+        raise PermanentParserError("URL должен быть абсолютным и содержать домен типа https://example.com")
 
     normalized = urlunparse(
         (

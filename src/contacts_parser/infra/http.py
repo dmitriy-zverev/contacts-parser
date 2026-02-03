@@ -1,4 +1,5 @@
 from functools import lru_cache
+from threading import local
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -6,10 +7,13 @@ from urllib3.util.retry import Retry
 
 from contacts_parser.core.config import settings
 
+_thread_state = local()
+
 
 @lru_cache(maxsize=settings.lru_maxsize)
 def get_session() -> requests.Session:
     s = requests.Session()
+    s.headers.update({"User-Agent": settings.http_user_agent})
 
     retry = Retry(
         total=0,
@@ -32,3 +36,11 @@ def get_session() -> requests.Session:
     s.mount("http://", adapter)
 
     return s
+
+
+def get_thread_session() -> requests.Session:
+    session = getattr(_thread_state, "session", None)
+    if session is None:
+        session = get_session()
+        _thread_state.session = session
+    return session
