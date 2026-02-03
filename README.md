@@ -24,6 +24,11 @@ A production-grade contacts parser that crawls a site, extracts emails and Russi
 pip install -e .
 ```
 
+### Production install (pip)
+```bash
+pip install -r requirements.txt
+```
+
 ## CLI usage
 ```bash
 python -m contacts_parser.main https://example.com
